@@ -1,0 +1,53 @@
+[
+  {
+    "id": 1,
+    "vertical": "belleza",
+    "serviceId": "corte",
+    "serviceName": "Corte de cabello",
+    "date": "2026-08-03",
+    "time": "19:00",
+    "durationMin": 45,
+    "price": 12000,
+    "people": 1,
+    "name": "cristian sepulveda",
+    "phone": "+56999920391",
+    "deposit": 10000,
+    "status": "cancelada",
+    "createdAt": "2026-08-01T22:08:17.383Z",
+    "paidAt": "2026-08-01T22:08:17.388Z"
+  },
+  {
+    "id": 2,
+    "vertical": "turismo",
+    "serviceId": "cabalgata",
+    "serviceName": "Cabalgata al atardecer",
+    "date": "2026-08-03",
+    "time": "11:00",
+    "durationMin": 150,
+    "price": 25000,
+    "people": 3,
+    "name": "cristian sepulveda",
+    "phone": "+56999920391",
+    "deposit": 30000,
+    "status": "cancelada",
+    "createdAt": "2026-08-01T22:09:22.349Z",
+    "paidAt": "2026-08-01T22:09:22.352Z"
+  },
+  {
+    "id": 3,
+    "vertical": "belleza",
+    "serviceId": "corte",
+    "serviceName": "Corte de cabello",
+    "date": "2026-08-01",
+    "time": "11:00",
+    "durationMin": 45,
+    "price": 12000,
+    "people": 1,
+    "name": "Cristian Sepulveda",
+    "phone": "+56999920391",
+    "deposit": 10000,
+    "status": "confirmada",
+    "createdAt": "2026-08-01T22:24:48.877Z",
+    "paidAt": "2026-08-01T22:24:48.880Z"
+  }
+]
