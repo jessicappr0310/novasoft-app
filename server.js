@@ -73,12 +73,43 @@ function findService(serviceId) {
 }
 
 // ---------- Persistencia ----------
+
+// Se asegura de que la carpeta data/ y los archivos existan siempre,
+// aunque el despliegue no los haya incluido (pasa seguido al subir a hosting).
+function ensureDataFiles() {
+  const dataDir = path.dirname(BOOKINGS_FILE);
+  if (!fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir, { recursive: true });
+    console.log('Carpeta data/ creada automáticamente en:', dataDir);
+  }
+  if (!fs.existsSync(BOOKINGS_FILE)) {
+    fs.writeFileSync(BOOKINGS_FILE, '[]');
+    console.log('Archivo bookings.json creado automáticamente.');
+  }
+  if (!fs.existsSync(OVERRIDES_FILE)) {
+    fs.writeFileSync(OVERRIDES_FILE, '{}');
+    console.log('Archivo schedule_overrides.json creado automáticamente.');
+  }
+}
+ensureDataFiles();
+
 function readJSON(file, fallback) {
-  if (!fs.existsSync(file)) return fallback;
-  return JSON.parse(fs.readFileSync(file, 'utf-8'));
+  try {
+    if (!fs.existsSync(file)) return fallback;
+    return JSON.parse(fs.readFileSync(file, 'utf-8'));
+  } catch (err) {
+    console.error('Error leyendo', file, '-', err.message);
+    return fallback;
+  }
 }
 function writeJSON(file, data) {
-  fs.writeFileSync(file, JSON.stringify(data, null, 2));
+  try {
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(file, JSON.stringify(data, null, 2));
+  } catch (err) {
+    console.error('Error escribiendo', file, '-', err.message);
+    throw err;
+  }
 }
 const readBookings = () => readJSON(BOOKINGS_FILE, []);
 const writeBookings = list => writeJSON(BOOKINGS_FILE, list);
@@ -135,7 +166,21 @@ function readBody(req, cb) {
   req.on('end', () => { try { cb(null, body ? JSON.parse(body) : {}); } catch(e){ cb(e); } });
 }
 
+// Red de seguridad: si algo falla de forma inesperada, se registra en los
+// logs en vez de tumbar el servidor completo para todos los usuarios.
+process.on('uncaughtException', err => console.error('Error no capturado:', err));
+process.on('unhandledRejection', err => console.error('Promesa rechazada sin manejar:', err));
+
 const server = http.createServer((req, res) => {
+  try {
+    handleRequest(req, res);
+  } catch (err) {
+    console.error('Error manejando', req.method, req.url, '-', err.message);
+    if (!res.headersSent) sendJSON(res, 500, { error: 'Error interno del servidor' });
+  }
+});
+
+function handleRequest(req, res) {
   const url = new URL(req.url, `http://${req.headers.host}`);
   const p = url.pathname;
 
@@ -282,6 +327,6 @@ const server = http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream' });
     res.end(content);
   });
-});
+}
 
 server.listen(PORT, () => console.log(`NovaSoft — servidor corriendo en el puerto ${PORT}`));
